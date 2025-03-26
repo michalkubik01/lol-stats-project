@@ -1,26 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import axios from 'axios';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface PlayerSearchProps {
+  username: string;
 }
 
-export default App;
+interface PlayerData {
+  summonerName: string;
+  level: number;
+  rankTier: string;
+}
+
+const PlayerSearch: React.FC = () => {
+  const [username, setUsername] = useState('');
+  const [playerData, setPlayerData] = useState<PlayerData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSearch = async () => {
+    try {
+      setError(null);
+      const response = await axios.get(`http://localhost:5000/api/player/${username}`);
+      setPlayerData(response.data);
+    } catch (err) {
+      setError('Failed to fetch player data');
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="player-search-container">
+      <h1>LOL Player Stats Tracker</h1>
+      <div className="search-input-container">
+        <input 
+          type="text" 
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter Summoner Name"
+        />
+        <button onClick={handleSearch}>Search</button>
+      </div>
+
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      {playerData && (
+        <div className="player-data">
+          <h2>{playerData.summonerName}</h2>
+          <p>Level: {playerData.level}</p>
+          <p>Rank: {playerData.rankTier}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PlayerSearch;
