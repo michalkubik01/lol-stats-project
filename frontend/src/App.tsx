@@ -2,25 +2,25 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
 
-interface PlayerSearchProps {
-  username: string;
-}
-
-interface PlayerData {
-  summonerName: string;
-  level: number;
-  rankTier: string;
+export type PlayerData = {
+  id: string;
+  accountId: string;
+  puuid: string;
+  profileIconId: number;
+  revisionDate: number;
+  summonerLevel: number;
 }
 
 const PlayerSearch: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [playerData, setPlayerData] = useState<PlayerData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tagline, setTagline] = useState('');
 
   const handleSearch = async () => {
     try {
       setError(null);
-      const response = await axios.get(`http://localhost:5000/api/player/${username}`);
+      const response = await axios.get(`http://localhost:5000/api/player/${name}/${tagline}`);
       setPlayerData(response.data);
     } catch (err) {
       setError('Failed to fetch player data');
@@ -34,9 +34,15 @@ const PlayerSearch: React.FC = () => {
       <div className="search-input-container">
         <input 
           type="text" 
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Enter Summoner Name"
+        />
+        <input 
+          type="text" 
+          value={tagline}
+          onChange={(e) => setTagline(e.target.value)}
+          placeholder="Enter Tagline"
         />
         <button onClick={handleSearch}>Search</button>
       </div>
@@ -49,9 +55,8 @@ const PlayerSearch: React.FC = () => {
 
       {playerData && (
         <div className="player-data">
-          <h2>{playerData.summonerName}</h2>
-          <p>Level: {playerData.level}</p>
-          <p>Rank: {playerData.rankTier}</p>
+          <h2>{playerData.id}</h2>
+          <p>Level: {playerData.summonerLevel}</p>
         </div>
       )}
     </div>
